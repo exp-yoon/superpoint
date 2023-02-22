@@ -134,29 +134,55 @@ int main()
 	//}
 
 	SpRun* sp = new SpRun();
+	Tracker* tracker = new Tracker();
+
+	//top img
 	sp->calc(locresult, descresult,top_img);
 	int count = sp->get_count();
 
 
 	//SpRun의 결과 받아올 곳
-	int** pts = new int* [2];
-	int* pts_x = new int[count];
-	int* pts_y = new int[count];
-	pts[0] = pts_y;
-	pts[1] = pts_x;
+	int** top_pts = new int* [2];
+	int* top_pts_x = new int[count];
+	int* top_pts_y = new int[count];
+	top_pts[0] = top_pts_y;
+	top_pts[1] = top_pts_x;
 
-	float* score = new float[count];
+	float* top_score = new float[count];
 
-	float** desc = new float* [desc_channel];
+	float** top_desc = new float* [desc_channel];
 	for (int i = 0; i < desc_channel; i++) {
-		float* desc_ = new float[count];
-		desc[i] = desc_;
+		float* top_desc_ = new float[count];
+		top_desc[i] = top_desc_;
 	}
 
-	sp->get_sp_result(pts, score, desc);
+	sp->get_sp_result(top_pts, top_score, top_desc);
 
-	Tracker* tracker = new Tracker();
-	tracker->update(pts, score, desc);
+	//bot img 
+	sp->calc(locresult, descresult, bot_img);
+	int count = sp->get_count();
+
+
+	//SpRun의 결과 받아올 곳
+	int** bot_pts = new int* [2];
+	int* bot_pts_x = new int[count];
+	int* bot_pts_y = new int[count];
+	bot_pts[0] = bot_pts_y;
+	bot_pts[1] = bot_pts_x;
+
+	float* bot_score = new float[count];
+
+	float** bot_desc = new float* [desc_channel];
+	for (int i = 0; i < desc_channel; i++) {
+		float* bot_desc_ = new float[count];
+		bot_desc[i] = bot_desc_;
+	}
+
+	sp->get_sp_result(bot_pts, bot_score, bot_desc);
+
+	//tracker->update(bot_pts, bot_score, bot_desc);
+
+	tracker->match_twoway(top_desc, bot_desc);
 
 
 	delete[] imgArr_t;
