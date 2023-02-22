@@ -7,6 +7,7 @@
 #include "ONNXCore.h"
 #include "opencv2/opencv.hpp"
 #include "SpRun.h"
+#include "Tracker.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ int main()
 	ATI_ONNX::AI* ai = new ATI_ONNX::AI(SUPERPOINT);
 
 	//Load Model
-	const wchar_t* modelPath = L"D:/ATI/MODEL/SuperPoint_fix.onnx";
+	const wchar_t* modelPath = L"D:/ATI/MODEL/SuperPoint_500.onnx";
 	bool bTensorRT = false;
 	bool bUseCache = false;
 	ai->LoadModel(modelPath, bTensorRT, bUseCache);
@@ -48,6 +49,9 @@ int main()
 	
 	cv::Mat top_img(rsize, rsize, CV_32FC1);
 	cv::Mat bot_img(rsize, rsize, CV_32FC1);
+	cv::Mat top_g(rsize, rsize, CV_8UC1);;
+	cv::Mat bot_g(rsize, rsize, CV_8UC1);;
+
 	for (int imgIdx = 0; imgIdx < imgNum; ++imgIdx)
 	{
 		cv::Mat img_mat = cv::imread(vec[imgIdx], cv::IMREAD_GRAYSCALE);
@@ -61,17 +65,19 @@ int main()
 		cv::Rect rect_bot(0, (Height - Width), Width, Width);
 		cv::Mat bot_crop = img_mat(rect_bot);
 
-		cv::Mat top_r, bot_r, top_g, bot_g;
+		cv::Mat top_r, bot_r;
+		/*cv::Mat top_g(rsize, rsize, CV_32FC1);
+		cv::Mat bot_g(rsize, rsize, CV_32FC1);*/
+	
 
-		cv::resize(top_crop, top_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_NN);
-		cv::resize(bot_crop, bot_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_NN);
-		cv::GaussianBlur(top_r, top_g, cv::Size(3, 3), 2);
-		cv::GaussianBlur(bot_r, bot_g, cv::Size(3, 3), 2);
-		top_g.convertTo(top_img, CV_32FC1);
-		bot_g.convertTo(bot_img, CV_32FC1);
-		//vec[imgIdx].replace(vec[imgIdx].find(".bmp"), 6, "test_result");
-		//cv::imwrite(vec[imgIdx], img_mat_rect);
-
+		cv::resize(top_crop, top_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
+		cv::resize(bot_crop, bot_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
+		//cv::GaussianBlur(top_r, top_g, cv::Size(3, 3), 2);
+		//cv::GaussianBlur(bot_r, bot_g, cv::Size(3, 3), 2);
+		top_r.convertTo(top_img, CV_32FC1);
+		bot_r.convertTo(bot_img, CV_32FC1);
+		//cv::divide(top_img, 255., top_n);
+		//cv::divide(bot_img, 255., bot_n);
 		float* top = new float[inpixNum];
 		memcpy(top, top_img.data, sizeof(float) * inpixNum);
 		imgArr_t[0][imgIdx] = top;
@@ -82,7 +88,7 @@ int main()
 	}
 
 	//Run Inference , top, bot 각각 결과 내야함. batch = 1
-	ai->Run(imgArr_t, imgNum, 1, true);
+	ai->Run(imgArr_t, 1, 1, true);
 	//ai->Run(imgArr_b, imgNum, 1, true);
 
 	//Get Result
@@ -121,8 +127,37 @@ int main()
 	//}
 
 
+	//for (int i = 0; i < loc_channel; i++) {
+	//	for (int j = 0; j < outpixNum; j++){
+	//		std::cout << i<<","<<j<<" "<<locresult[0][i][j] << std::endl;
+	//	}
+	//}
+
 	SpRun* sp = new SpRun();
 	sp->calc(locresult, descresult,top_img);
+	int count = sp->get_count();
+
+
+	//SpRun의 결과 받아올 곳
+	int** pts = new int* [2];
+	int* pts_x = new int[count];
+	int* pts_y = new int[count];
+	pts[0] = pts_y;
+	pts[1] = pts_x;
+
+	float* score = new float[count];
+
+	float** desc = new float* [desc_channel];
+	for (int i = 0; i < desc_channel; i++) {
+		float* desc_ = new float[count];
+		desc[i] = desc_;
+	}
+
+	sp->get_sp_result(pts, score, desc);
+
+	Tracker* tracker = new Tracker();
+	tracker->update(pts, score, desc);
+
 
 	delete[] imgArr_t;
 	delete[] imgArr_b;

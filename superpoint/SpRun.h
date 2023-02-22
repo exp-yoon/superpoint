@@ -20,9 +20,17 @@ protected:
 	int cell = 8;
 	float conf_thresh = 0.015;
 
+	int** pts_save;
+	float* score_save;
+	float** desc_save;
+	
 public:
 	SpRun();
 	~SpRun();
+	int count;
+	void set_count(int value);
+	int get_count();
+	void get_sp_result(int** pts_result, float* score_result, float** desc_result);
 	void grid_sample(float*** coarse_desc, float** samp_pts, long long count, float** desc);
 	void calc(float*** semi, float*** coarse_desc_, cv::Mat img);
 
