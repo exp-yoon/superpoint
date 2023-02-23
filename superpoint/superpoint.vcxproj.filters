@@ -24,12 +24,18 @@
     <ClCompile Include="SpRun.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="align.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tracker.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SpRun.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="align.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

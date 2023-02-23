@@ -21,7 +21,7 @@ public:
 	Tracker();
 	~Tracker();
 	void set_keep_count(int val);
-	void update(int** pts, float* score, float** desc);
+	void get_match_point(int** top_pt, int** bot_pt));
 	void match_twoway(float** top_desc, float** bot_desc);
 
 };

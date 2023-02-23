@@ -143,11 +143,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="align.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SpRun.cpp" />
     <ClCompile Include="Tracker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="align.h" />
     <ClInclude Include="SpRun.h" />
     <ClInclude Include="Tracker.h" />
   </ItemGroup>

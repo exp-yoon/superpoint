@@ -17,33 +17,23 @@ void Tracker::set_keep_count(int val) {
 
 }
 
-void Tracker::update(int** pts, float* score, float** desc){
+void Tracker::get_match_point(int** top_pt, int** bot_pt){
 
-	float** tracks = new float* [3];
-
-	float* id1 = new float[top_count];
-	float* id2 = new float[top_count];
-	float* score = new float[top_count];
-
-	for (int tc = 0; tc < top_count; tc++) {
-		id1[tc] = tc;
-		id2[tc] = -1;
-		score[tc] = max_score;
-	}
+	int** match_point = new int* [keep_count];
 
 	for (int kc = 0; kc < keep_count; kc++) {
+		int* point_4 = new int[4];
 
-		int midx1 = int(matches[0][kc]);
-		int midx2 = int(matches[1][kc]+top_count);
+		int top_idx = matches[0][kc];
+		int bot_idx = matches[1][kc];
 
+		point_4[0] = top_pt[0][top_idx];
+		point_4[1] = top_pt[1][top_idx];
+		point_4[2] = bot_pt[0][bot_idx];
+		point_4[3] = bot_pt[1][bot_idx];
 
-
-
+		match_point[kc] = point_4;
 	}
-
-
-
-
 		
 }
 
