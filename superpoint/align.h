@@ -1,6 +1,8 @@
 #pragma once
 #include <cmath>
+#include <vector>
 #include "opencv2/opencv.hpp"
+#include <algorithm>
 
 class Align
 {
@@ -16,6 +18,6 @@ public:
 	Align();
 	Align(int H, int W, int rsize_h, int rsize_w);
 	~Align();
-	void get_alignment(int** point);
+	void get_alignment(float** matches, int match_count);
 
 };

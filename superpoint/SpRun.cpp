@@ -27,7 +27,6 @@ void SpRun::get_sp_result(int** pts_result, float* score_result, float** desc_re
 
 	for (size_t chanIdx = 0; chanIdx < desc_channel; ++chanIdx) {
 		memcpy(desc_result[chanIdx], desc_save[chanIdx], sizeof(float) * count);
-		int tttttt = 0;
 	}
 }
 

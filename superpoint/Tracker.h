@@ -20,8 +20,10 @@ protected:
 public:
 	Tracker();
 	~Tracker();
+	void get_match_result(float** match_result);
 	void set_keep_count(int val);
-	void get_match_point(int** top_pt, int** bot_pt));
+	int get_keep_count();
+	void match_point_idx(int** top_pt, int** bot_pt);
 	void match_twoway(float** top_desc, float** bot_desc);
 
 };

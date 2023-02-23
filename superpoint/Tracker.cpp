@@ -10,6 +10,13 @@ Tracker::~Tracker()
 {
 }
 
+void Tracker::get_match_result(float** match_result) {
+
+	for (size_t chanIdx = 0; chanIdx < 3; ++chanIdx) {
+		memcpy(match_result[chanIdx], matches[chanIdx], sizeof(float) * keep_count);
+	}
+
+}
 
 void Tracker::set_keep_count(int val) {
 
@@ -17,7 +24,13 @@ void Tracker::set_keep_count(int val) {
 
 }
 
-void Tracker::get_match_point(int** top_pt, int** bot_pt){
+int Tracker::get_keep_count() {
+
+	return keep_count;
+
+}
+
+void Tracker::match_point_idx(int** top_pt, int** bot_pt){
 
 	int** match_point = new int* [keep_count];
 
@@ -49,6 +62,7 @@ void Tracker::match_twoway(float** top_desc, float** bot_desc) {
 			float val = 0;
 			for (int dc = 0; dc < desc_channel; dc++){
 				val += top_desc[dc][tc] * bot_desc[bc][dc];
+				int tttttt = 0;
 			}
 			//dot product 결과가 -1~1 범위를 넘으면 clip
 			if (val > 1) {
@@ -59,8 +73,11 @@ void Tracker::match_twoway(float** top_desc, float** bot_desc) {
 			}
 			val = sqrt(2 - 2 * val);
 			dmat_[bc] = val;
+			int tttttttttt = 0;
+
 		}
 		dmat[tc] = dmat_;
+
 	}
 
 	int* min_idx = new int[top_count]; // 한 행에서의 최소값 인덱스
@@ -141,6 +158,8 @@ void Tracker::match_twoway(float** top_desc, float** bot_desc) {
 	matches[0] = match01;
 	matches[1] = keep_min_idx;
 	matches[2] = keep_score;
+
+	int ttttttttt = 0;
 
 
 
