@@ -8,16 +8,16 @@ class Align
 {
 protected:
 
-	long long H;
-	long long W;
-	long long rsize_h = 500;
-	long long rsize_w = 500;
+	double H;
+	double W;
+	double rsize_h = 500;
+	double rsize_w = 500;
 
 
 public:
 	Align();
 	Align(int H, int W, int rsize_h, int rsize_w);
 	~Align();
-	void get_alignment(float** matches, int match_count);
+	void get_alignment(long long** matches, long long match_count);
 
 };

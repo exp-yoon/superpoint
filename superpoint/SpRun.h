@@ -6,8 +6,8 @@ class SpRun
 {
 
 protected:
-	float nn_thresh;
-	float nms_dist;
+	double nn_thresh;
+	double nms_dist;
 	long long loc_channel = 65;
 	long long desc_channel = 256;
 	long long pixnum = 3844;
@@ -18,20 +18,20 @@ protected:
 	long long h = 62;
 	long long w = 62;
 	int cell = 8;
-	float conf_thresh = 0.015;
+	double conf_thresh = 0.015;
 
-	int** pts_save;
-	float* score_save;
-	float** desc_save;
+	long long** pts_save;
+	double* score_save;
+	double** desc_save;
 	
 public:
 	SpRun();
 	~SpRun();
-	int count;
-	void set_count(int value);
-	int get_count();
-	void get_sp_result(int** pts_result, float* score_result, float** desc_result);
-	void grid_sample(float*** coarse_desc, float** samp_pts, long long count, float** desc);
+	long long count;
+	void set_count(long long value);
+	long long get_count();
+	void get_sp_result(long long** pts_result, double* score_result, double** desc_result);
+	void grid_sample(double*** coarse_desc, double** samp_pts, long long count, double** desc);
 	void calc(float*** semi, float*** coarse_desc_, cv::Mat img);
 
 };
