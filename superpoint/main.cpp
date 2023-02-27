@@ -16,7 +16,6 @@ int main()
 {
 	long long rsize = 500;
 
-
 	ATI_ONNX::AI* ai = new ATI_ONNX::AI(SUPERPOINT);
 
 	//Load Model
@@ -93,12 +92,14 @@ int main()
 	}
 
 	std::cout << " Inference start " << std::endl;
-	//Run Inference , top, bot 각각 결과 내야함. batch = 1
+	//Run Inference , imgNum = 2 , batch = 1, bNormalize = true
 	ai->Run(imgArr, 2, 1, true);
 
 	//Get Result
-	float*** locresult = new float** [2];
-	float*** descresult = new float** [2];
+	// locresult : ( 2 (top/bot), loc_channel, outpixNum )
+	// descresult :  ( 2 (top/bot) , desc_channel, outpixNum )
+	float*** locresult = new float** [2]; //feature point location(좌표)
+	float*** descresult = new float** [2]; //point의 descriptor 
 
 	long long loc_channel = 65;
 	long long desc_channel = 256;
@@ -125,14 +126,15 @@ int main()
 
 	bool bRes = ai->GetSuperpointResults(locresult, descresult);
 
-	SpRun* sp = new SpRun();
-	Tracker* tracker = new Tracker();
-
+	SpRun* sp = new SpRun(loc_channel,desc_channel,outpixNum,rsize,rsize);
 	std::cout << " SpRun start " << std::endl;
 
 	//top img
+	// locresult_t : (1, loc_channel, outpixNum)
 	float*** locresult_t = new float** [1];
 	locresult_t[0] = locresult[0];
+
+	// descresult_t : (1, desc_channel, outpixNum)
 	float*** descresult_t = new float** [1];
 	descresult_t[0] = descresult[0];
 
@@ -140,14 +142,18 @@ int main()
 	long long top_count = sp->get_count();
 
 	//SpRun의 결과 받아올 곳
+
+	//top_pts : (2, top_count) -> nms 적용하고, score 기준 내림차순으로 정렬한 x,y 좌표들이 저장됨
 	long long** top_pts = new long long* [2];
 	long long* top_pts_x = new long long[top_count];
 	long long* top_pts_y = new long long[top_count];
 	top_pts[0] = top_pts_y;
 	top_pts[1] = top_pts_x;
 
+	//top_score : (top_count) -> nms 적용하고, 내림차순으로 정렬된 score들이 저장됨
 	double* top_score = new double[top_count];
 
+	//top_pts : (desc_channel, top_count)
 	double** top_desc = new double* [desc_channel];
 	for (size_t i = 0; i < desc_channel; i++) {
 		double* top_desc_ = new double[top_count];
@@ -155,7 +161,9 @@ int main()
 	}
 	sp->get_sp_result(top_pts, top_score, top_desc);
 
-	//bot img
+
+	//bot img -> top이랑 동일
+
 	float*** locresult_b = new float** [1];
 	locresult_b[0] = locresult[1];
 	float*** descresult_b = new float** [1];
@@ -182,11 +190,13 @@ int main()
 	sp->get_sp_result(bot_pts, bot_score, bot_desc);
 
 	std::cout << " matching start " << std::endl;
-
-	tracker->match_twoway(top_desc, bot_desc);
-	tracker->match_point_idx(top_pts, bot_pts);
+	
+	Tracker* tracker = new Tracker(top_count,bot_count);
+	tracker->match_twoway(top_desc, bot_desc); //descriptor 입력해서 두 이미지의 point matching 구함
+	tracker->match_point_idx(top_pts, bot_pts); //matching 구한걸로 실제 point matching 수행
 	long long match_count = tracker->get_keep_count();
 
+	//matching point 결과 저장할 곳 : (match_count, 4)
 	long long** matches_pts = new long long* [match_count];
 	for (size_t i = 0; i < match_count; i++) {
 		long long* match = new long long[4];

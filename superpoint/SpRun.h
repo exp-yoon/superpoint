@@ -8,15 +8,15 @@ class SpRun
 protected:
 	double nn_thresh;
 	double nms_dist;
-	long long loc_channel = 65;
-	long long desc_channel = 256;
-	long long pixnum = 3844;
-	long long org_h = 500;
-	long long org_w = 500;
+	long long loc_channel;
+	long long desc_channel;
+	long long pixnum;
+	long long rsize_h;
+	long long rsize_w;
 	int pad = 4;
 	int border = 4;
-	long long h = 62;
-	long long w = 62;
+	long long h;
+	long long w;
 	int cell = 8;
 	double conf_thresh = 0.015;
 
@@ -26,6 +26,7 @@ protected:
 	
 public:
 	SpRun();
+	SpRun(int loc_c, int desc_c, int pixn, int rsize_h, int rsize_w);
 	~SpRun();
 	long long count;
 	void set_count(long long value);
