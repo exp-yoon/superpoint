@@ -158,6 +158,11 @@ void Tracker::match_twoway(double** top_desc, double** bot_desc) {
 	}
 
 	matches = new double* [3];
+	for (size_t i = 0; i < 3; i++) {
+		double* match = new double[keep_count];
+		matches[i] = match;
+	}
+
 	double* match01 = new double[keep_count];
 	int midx = 0;
 	for (size_t tc = 0; tc < top_count; tc++) {
@@ -166,10 +171,10 @@ void Tracker::match_twoway(double** top_desc, double** bot_desc) {
 			midx++;
 		}
 	}
-	matches[0] = match01;
-	matches[1] = keep_min_idx;
-	matches[2] = keep_score;
 
+	memcpy(matches[0], match01, sizeof(double) * keep_count);
+	memcpy(matches[1], keep_min_idx, sizeof(double) * keep_count);
+	memcpy(matches[2], keep_score, sizeof(double) * keep_count);
 
 	//delete
 	for (size_t i = 0; i < top_count; i++) {

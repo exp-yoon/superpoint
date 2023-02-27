@@ -33,32 +33,24 @@ int main()
 	std::vector<std::string> vec;
 	for (const auto& file : std::filesystem::directory_iterator(dir_path))
 		vec.push_back(file.path().u8string());
-	int imgNum = 2;
+
 	//int imgNum = vec.size(); //imgNum : 폴더 내의 data 개수
+	int imgNum = 2; //사용할 이미지는 top,bot 항상 2개
+	
 
-	//top, bot img array (1 x 1 x H x W)
-	// 
-	// 
-	// 
-	//double*** imgArr_t = new double** [1];
-	//double*** imgArr_b = new double** [1];
-
-
-	//imgArr_t[0] = new double* [imgNum];
-	//imgArr_b[0] = new double* [imgNum];
-
-
+	//Onnx model에 입력할 ImgArr -> Shape : (1, 2(imgNum), inpixNum)
 	float*** imgArr = new float** [1];
-	imgArr[0] = new float* [imgNum];//top
-	//imgArr[1] = new double* [imgNum];//bot
+	imgArr[0] = new float* [imgNum];//top,bot
 
-	//int pixNum = rsize * rsize;
+	//모델의 입력이미지의 총 픽셀 개수 inpixNum = rsize * rsize;
 	long long inpixNum = inputDims[0][2] * inputDims[0][3];
-	long long outpixNum = outputDims[0][2] * outputDims[0][3];  //ㄹㅇ pixel 개수 가로x세로
+	//모델의 출력이미지의 총 픽셀 개수 inpixNum = (rsize/8) *(rsize/8)
+	long long outpixNum = outputDims[0][2] * outputDims[0][3];
 	
 	cv::Mat top_img(rsize, rsize, CV_32FC1);
 	cv::Mat bot_img(rsize, rsize, CV_32FC1);
 
+	//폴더에 넣은 길쭉한 원본 이미지의 H,W
 	long long Height;
 	long long Width;
 
@@ -75,17 +67,19 @@ int main()
 		cv::Rect rect_bot(0, (Height - Width), Width, Width);
 		cv::Mat bot_crop = img_mat(rect_bot);
 
-		cv::Mat top_r, bot_r;
-		/*cv::Mat top_g(rsize, rsize, CV_32FC1);
-		cv::Mat bot_g(rsize, rsize, CV_32FC1);*/
+		cv::Mat top_r, bot_r, top_g, bot_g;
+		//cv::Mat top_g(rsize, rsize, CV_32FC1);
+		//cv::Mat bot_g(rsize, rsize, CV_32FC1);
 	
 
 		cv::resize(top_crop, top_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
 		cv::resize(bot_crop, bot_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
-		//cv::GaussianBlur(top_r, top_g, cv::Size(3, 3), 2);
-		//cv::GaussianBlur(bot_r, bot_g, cv::Size(3, 3), 2);
-		top_r.convertTo(top_img, CV_32FC1);
-		bot_r.convertTo(bot_img, CV_32FC1);
+		//가우시안 블러 꼭 해줘야 결과값이 좋음. 근데 이거 파이썬이랑 똑같은 값으로 했는데 왜
+		//블러 결과가 다를까용?
+		cv::GaussianBlur(top_r, top_g, cv::Size(3, 3), 2);
+		cv::GaussianBlur(bot_r, bot_g, cv::Size(3, 3), 2);
+		top_g.convertTo(top_img, CV_32FC1);
+		bot_g.convertTo(bot_img, CV_32FC1);
 		//cv::divide(top_img, 255., top_n);
 		//cv::divide(bot_img, 255., bot_n);
 		float* top = new float[inpixNum];
@@ -218,19 +212,22 @@ int main()
 
 	for (size_t i = 0; i < 2; i++) {
 		for (size_t j = 0; j < loc_channel; j++) {
-			delete[] locresult[i][j];
+			delete[] locresult[i][j]; 
 		}
+		delete[] locresult[i];
+	}
+	delete[] locresult;
+
+	for (size_t i = 0; i < 2; i++) {
 		for (size_t j = 0; j < desc_channel; j++) {
 			delete[] descresult[i][j];
 		}
-		delete[] locresult[i];
 		delete[] descresult[i];
 	}
-	delete[] locresult;
 	delete[] descresult;
 
 
-	for (size_t i = 0; i < desc_channel; i++) {
+	for (size_t i = 0; i < 2; i++) {
 		delete[] top_pts[i];
 		delete[] bot_pts[i];
 	}

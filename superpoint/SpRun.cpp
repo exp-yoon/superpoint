@@ -110,10 +110,15 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 	double** nodust = new double* [loc_channel - 1];
 	double** dense_p = new double* [loc_channel]; //(3,62*62)형태의 semi에 exp계산
 	double* expSum = new double[pixnum]; //pixel wise expsum
-	for (size_t chanIdx = 0; chanIdx < loc_channel; chanIdx++) {
 
-		double* dense_c = new double[pixnum];
+	for (size_t chanIdx = 0; chanIdx < loc_channel-1; chanIdx++) {
 		double* nodust_c = new double[pixnum]();
+		nodust[chanIdx] = nodust_c;
+	}
+
+	for (size_t chanIdx = 0; chanIdx < loc_channel; chanIdx++) {
+		double* dense_c = new double[pixnum];
+
 		for (size_t pixIdx = 0; pixIdx < pixnum; pixIdx++) {
 			double val0 = exp(double(semi[0][chanIdx][pixIdx]));
 
@@ -123,12 +128,9 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 			else {
 				expSum[pixIdx] = expSum[pixIdx] + val0;
 			}
-
 			dense_c[pixIdx] = val0;
-
 		}
 		dense_p[chanIdx] = dense_c;
-		nodust[chanIdx] = nodust_c;
 	}
 
 	for (size_t chanIdx = 0; chanIdx < loc_channel - 1; chanIdx++) {
@@ -307,18 +309,21 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 	//좌표에 score 순위가 매겨졌던 inds에서도 nms해서 남은 좌표들의 순위만 inds_keep에 저장
 	long long* inds_keep = new long long[count]; //nms 적용 후 남은 좌표의 score 순위
 	for (size_t i = 0; i < count; i++) {
-		inds_keep[i] = inds[keepy[i]][keepx[i]];
+		int y = keepy[i];
+		int x = keepx[i];
+		inds_keep[i] = inds[y][x];
 	}
 
 	//nms로 남은 score들
 	double* keep_score = new double[count];
 	for (size_t i = 0; i < count; i++) {
-		keep_score[i] = sorted_score[inds_keep[i]];
+		int inds_k = inds_keep[i];
+		keep_score[i] = sorted_score[inds_k];
 	}
 
 	//nms로 남은 score의 내림차순 인덱스 구하기 
 	long long* sorted_keep_idx = new long long[count];
-	for (size_t i = 0; i < cnt; i++)
+	for (size_t i = 0; i < count; i++)
 		sorted_keep_idx[i] = i;
 
 	for (size_t i = 0; i < count; i++) {
@@ -447,7 +452,7 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 	for (size_t i = 0; i < loc_channel; i++) {
 		delete[] dense_p[i];
 	}
-	//delete[] nodust;
+	delete[] nodust;
 	delete[] dense_p;
 	delete[] expSum;
 
@@ -494,9 +499,9 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 	}
 	delete[] grid;
 	delete[] inds;
-	delete[] keepx;
+	delete[] keepx; //얘 좀 이상했는데
 	delete[] keepy;
-	//delete[] inds_keep;
+	delete[] inds_keep;
 	delete[] keep_score;
 	delete[] sorted_keep_idx;
 
