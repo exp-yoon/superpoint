@@ -74,13 +74,12 @@ int main()
 		cv::resize(top_crop, top_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
 		cv::resize(bot_crop, bot_r, cv::Size(rsize, rsize), 0, 0, CV_INTER_AREA);
 		//가우시안 블러 꼭 해줘야 결과값이 좋음. 근데 이거 파이썬이랑 똑같은 값으로 했는데 왜
-		//블러 결과가 다를까용?
+		//블러 결과가 다를까용? -> 값이 좀 다르긴 한데 결과값이 크게 달라지진 않습니다..
+		//약간 count 개수만 차이나는 정도..? 찾아보니까 python이랑 c++이랑 약간의 차이가 있다고는하네요
 		cv::GaussianBlur(top_r, top_g, cv::Size(3, 3), 2);
 		cv::GaussianBlur(bot_r, bot_g, cv::Size(3, 3), 2);
 		top_g.convertTo(top_img, CV_32FC1);
 		bot_g.convertTo(bot_img, CV_32FC1);
-		//cv::divide(top_img, 255., top_n);
-		//cv::divide(bot_img, 255., bot_n);
 		float* top = new float[inpixNum];
 		memcpy(top, top_img.data, sizeof(float) * inpixNum);
 		imgArr[0][0] = top;

@@ -535,7 +535,7 @@ void SpRun::calc(float*** semi, float*** coarse_desc_, cv::Mat img) {
 	}
 	delete[] grid;
 	delete[] inds;
-	delete[] keepx; //얘 좀 이상했는데
+	delete[] keepx;
 	delete[] keepy;
 	delete[] inds_keep;
 	delete[] keep_score;
